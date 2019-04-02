@@ -3,28 +3,45 @@
   <head>
     <title>Socket.IO chat</title>
     <style>
-      html { margin: 0; padding: 0; box-sizing: border-box; width: 100%; height: 100%; overflow: auto; }
-      body { font: 13px Helvetica, Arial; width: 100%; height: 100%; margin: 0; padding: 0; overflow: auto; }
-      div { background: #000; padding: 3px; position: fixed; bottom: 0; width: 100%; height: 40px; display: flex; }
-      div input { border: 0; padding: 10px; width: 90%; margin-right: .5%; }
-      div button { width: 9%; background: rgb(130, 224, 255); border: none; padding: 10px; }
-      #messages { list-style-type: none; margin: 0; padding: 0;  height: calc(100% - 46px); overflow: hidden; }
+      html { margin: 0; padding: 0; box-sizing: border-box; width: 100%; height: 100%; overflow: hidden; }
+      body { font: 13px Helvetica, Arial; width: 100%; height: 100%; margin: 0; padding: 0; overflow: hidden; }
+      div { background: #000; padding: 3px; position: fixed; bottom: 0; width: 100%; height: 30px; display: flex; }
+      div input { border: 0; padding: 10px; width: 80%; margin-right: .5%; }
+      div button { width: 19.50%; background: rgb(130, 224, 255); border: none; margin-right: 0.7%; }
+      #messages-container { height: calc(100% - 36px); width: 80%; overflow: hidden; position: absolute;}
+      #messages { list-style-type: none; margin: 0; padding: 0;  height: 100%; }
       #messages li { padding: 5px 10px; min-height: 16px; }
       #messages li:nth-child(odd) { background: #eee; }
+      #users-container { height: calc(100% - 36px); width: 20%; overflow: hidden; border-left: 1px solid rgba(0,0,0,0.5); right: 0px; position: absolute; }
+      #users-container h3 { text-align: center; font-size: 19px; }
+      #users-container hr { margin: 0; }
+      #users { list-style-type: none; margin: 0; padding: 0; }
+      #users li { padding: 5px 10px; min-height: 18px; font-weight: bold; font-size: 15px; }
+      #users li:nth-child(odd) { background: #eee; }
     </style>
     <link rel="stylesheet" href="https://rawgit.com/utatti/perfect-scrollbar/master/css/perfect-scrollbar.css">
   </head>
   <body>
-    <ul id="messages"></ul>
+  	<section id="messages-container">
+  		<ul id="messages"></ul>
+  	</section>
+  	<section id="users-container">
+  		<h3>Online users (<span id="online-users"></span>)</h3>
+  		<hr>
+  		<ul id="users"></ul>
+  	</section>
     <div>
     	<input id="message" autocomplete="off" onkeypress="introSend(event)" /><button onclick="send(event)">Send</button>
     </div>
     <script src="/socket.io/socket.io.js"></script>
     <script src="https://rawgit.com/utatti/perfect-scrollbar/master/dist/perfect-scrollbar.js"></script>
     <script>
-    	const ps = new PerfectScrollbar('#messages');
+    	const ps = new PerfectScrollbar('#messages-container');
 
-	    var socket = io();
+    	var url = new URL(window.location.href);
+		var nickname = url.searchParams.get("nickname");
+
+	    var socket = io('', {query: 'nickname=' + nickname});
 	    function send(evt){
 	      evt.preventDefault(); // prevents page reloading
 	      sendMessage();
@@ -36,14 +53,40 @@
 	    }
 
 	    function sendMessage(){
-		    socket.emit('chat message', document.getElementById('message').value);
-		    document.getElementById('message').value = '';
+	    	let message = document.getElementById('message').value;
+	    	if(message.trim() != ''){
+	    		socket.emit('chat message', message);
+		   		document.getElementById('message').value = '';
+	    	}
 	    }
 
 	    function scrollToBottom() {
-		  	document.getElementById('messages').scrollTop = document.getElementById('messages').scrollHeight;
+		  	document.getElementById('messages-container').scrollTop = document.getElementById('messages').scrollHeight;
 		}
 
+		// Retrieve the last messages from server
+		socket.on('last messages', function(messages){
+			let container = document.getElementById('messages');
+			messages.forEach(message => {
+				let li = document.createElement('li');
+				li.innerHTML = message;
+				container.append(li);
+			});
+		});
+
+		//Retrieve the online users
+		socket.on('users online', function(users){
+			document.getElementById('online-users').innerHTML = users.length;
+			let container = document.getElementById('users');
+			container.innerHTML = '';
+			users.forEach( user => {
+				let li = document.createElement('li');
+				li.innerHTML = user.nickname;
+				container.append(li);
+			});
+		});
+
+		// Send message
 	    socket.on('chat message', function(msg){
 	      let li = document.createElement('li');
 	      li.innerHTML = msg;
