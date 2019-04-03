@@ -1,10 +1,15 @@
-var app = require('express')();
+var express = require('express');
+var app = express();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
 
 app.get('/', function(req, res){
   res.sendFile(__dirname + '/index.html');
 });
+
+// Resources
+app.use(express.static(__dirname + '/public'));
+app.use(express.static(__dirname + '/node_modules'));
 
 
 var users = [];
@@ -18,6 +23,7 @@ io.on('connection', function(socket){
   user.id = socket.id;
   console.log(nickname);
   user.nickname = nickname;
+  // user.socket = socket;
   users.push(user);
 
   sendMessageNoName(io, nickname + ' se ha conectado.');
@@ -71,6 +77,8 @@ function getCurrentDate(){
 	var today = new Date();
 	var dd = today.getDate();
 	var mm = today.getMonth() + 1; //January is 0!
+	var hh = today.getHours();
+	var min = today.getMinutes();
 
 	var yyyy = today.getFullYear();
 	if (dd < 10) {
@@ -79,6 +87,12 @@ function getCurrentDate(){
 	if (mm < 10) {
 	  mm = '0' + mm;
 	} 
+	if (hh < 10) {
+	  hh = '0' + hh;
+	} 
+	if (min < 10) {
+	  min = '0' + min;
+	}
 	// Full date: '[' +dd + '/' + mm + '/' + yyyy + ' - ' + today.getHours() + ':' + today.getMinutes() + ']'
-	return '[' + today.getHours() + ':' + today.getMinutes() + ']';
+	return '[' + hh + ':' + min + ']';
 }
