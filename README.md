@@ -1,5 +1,4 @@
 # Chatbox
----
 This is a project to learn about **websockets** using [socket.io](https://socket.io) library and plain javascript.
 The idea is to write a **chatbox** with basic functionalities and improve it step by step.
 
@@ -22,25 +21,21 @@ Future features that might be added:
 - Other implementations suggested by users.
 
 # Instalation & Requirements
----
 To run this chatbox you need to have installed [Node](https://nodejs.org/) and [NPM](https://www.npmjs.com).
 After cloning the repository, you will need to do an `npm install` in the root folder to install all the libraries that will be needed to run the aplication.
 Then, run the `node startServer.js` command to start it. After that, you will see that your application is running in the port 3000 and you can access it from: `127.0.0.1:3000`
 
 # Sharing 
----
 You can make it accesible to anyone that is connected into the same network by typeing the public ip and the port you opened in the server script. Normally it would look something like this: `192.168.1.XX:3000`.
 To knew your public IP just tip `ipconfig` in your CMD and look for it.
 
 # Bugs & Collaborations
----
 This is just a test application to improve my knowledge about websockets and plain javascript, so there will be a lot of bugs and improvements that can be done. Since it's a test application, I won't answer questions about implementations or fixes that are
 
 Feel free to make a `pull-request` and collaborate with this project, or send an email to __lluiscf92@gmail.com__.
 
 # License
----
-##### MIT License
+### MIT License
 Copyright (c) [2019] [Baltimer]
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights
