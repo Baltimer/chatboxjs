@@ -38,10 +38,37 @@
 	    }
 
 	    function sendMessage(){
-	    	let message = document.getElementById('message').value;
-	    	if(message.trim() != ''){
-	    		socket.emit('chat message', message);
-		   		document.getElementById('message').value = '';
+	    	let message = document.getElementById('message').value.trim();
+	    	if(message != ''){
+	    		let command = message.charAt(0);
+	    		if(command == '/'){
+    				let action = message.slice(1, (message.indexOf(' ') == -1 ? message.length : message.indexOf(' ')));
+    				let search = message.slice(message.indexOf(' '), message.length);
+    				switch(action){
+    					case 'clear':
+    						document.getElementById('messages'). innerHTML = '';
+    						break;
+    					case 'gif':
+    						var req = new XMLHttpRequest();
+    						req.open('GET', 'https://api.giphy.com/v1/gifs/search?api_key=iQ6EgYmlMTRANfu4NkRKCgSMsxtdmaDY&q='+search, false);
+    						req.send(null);
+    						if (req.status == 200){
+    							let response = JSON.parse(req.responseText);
+    							if(response.data.length > 0){
+    								console.log(response.data)
+    								socket.emit('chat message', '<img src="' + response.data[0].images.original.url + '" height="150" width="150" />');
+    							} else {
+    								socket.emit('no command', 'No hemos encontrado ningún GIF.');
+    							}
+    						}
+    						break;
+    					default:
+    						socket.emit('no command', 'Este comando no existe.');
+    				}
+	    		} else {
+					socket.emit('chat message', message);
+	    		}
+	    		document.getElementById('message').value = '';
 	    	}
 	    }
 

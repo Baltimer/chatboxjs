@@ -14,6 +14,7 @@ app.use(express.static(__dirname + '/node_modules'));
 
 var users = [];
 var messages = [];
+var sockets = [];
 const MAX_MESSAGES = 20;
 io.on('connection', function(socket){
   console.log('Nueva conexión: ' + socket.id);
@@ -24,6 +25,7 @@ io.on('connection', function(socket){
   console.log(nickname);
   user.nickname = nickname;
   // user.socket = socket;
+  sockets.push(socket);
   users.push(user);
 
   sendMessageNoName(io, nickname + ' se ha conectado.');
@@ -37,9 +39,9 @@ io.on('connection', function(socket){
     sendMessage(io, nickname, msg);
   });
 
-  // Establecer nombre de usuario
-  socket.on('set username', function(username){
-
+  // Informar que no existe el comando
+  socket.on('no command', function(msg){
+  	sendMessageToUser(socket, msg);
   });
 
   // Desconexión del usuario
@@ -71,6 +73,11 @@ function sendMessageNoName(io, msg){
     	messages.shift();
     }
     messages.push(msg);
+}
+
+function sendMessageToUser(socket, msg){
+	msg = getCurrentDate() + ' <b><i>' + msg + '</i></b>';
+	socket.emit('chat message', msg);
 }
 
 function getCurrentDate(){
