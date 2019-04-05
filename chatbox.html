@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Chatboxjey-es</title>
+	<link rel="stylesheet" type="text/css" href="css/chatbox.css">
+    <link rel="stylesheet" href="perfect-scrollbar/css/perfect-scrollbar.css">
+</head>
+<body>
+	<div id="app">
+		<header>
+			<div class="header-title">CHATBOXJEY-ES</div>
+			<div id="menu-button" onclick="rotate()"><div class="bar1"></div><div class="bar2"></div><div class="bar3"></div></div>
+		</header>
+		<div class="app-container">
+			<div class="chat-container">
+				<div class="messages-container">
+					<ul id="messages"></ul>
+				</div>
+				<div class="message-container">
+					<input type="text" id="message" />
+					<button id="send">Enviar</button>
+				</div>
+			</div>
+			<div class="users-container">
+				<div class="users-title">
+					<h3><span id="connection"></span>Online users (<span id="online-users">0</span>)</h3>
+			  		<hr>
+				</div>
+				<div class="users-list">
+					<ul id="users"></ul>
+				</div>
+			</div>
+		</div>
+		</div>
+	<!-- SCRIPTS SECTION -->
+		<script src="/socket.io/socket.io.js"></script>
+	    <script src="/perfect-scrollbar/dist/perfect-scrollbar.js"></script>
+	    <script>
+	    	function rotate() {
+	    		document.getElementById('menu-button').classList.toggle('change');
+	    		console.log(document.getElementsByClassName('users-container')[0]);
+	    		document.getElementsByClassName('users-container')[0].classList.toggle('open');
+	    	}
+	    </script>
+</body>
+</html>

@@ -6,6 +6,9 @@ var io = require('socket.io')(http);
 app.get('/', function(req, res){
   res.sendFile(__dirname + '/index.html');
 });
+app.get('/chatbox', function(req, res){
+  res.sendFile(__dirname + '/chatbox.html');
+})
 
 // Resources
 app.use(express.static(__dirname + '/public'));
