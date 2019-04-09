@@ -58,7 +58,8 @@ body {
       background-color: var(--background);
       margin: 0;
       padding: 0;
-      display: flex; }
+      display: flex;
+      position: relative; }
       body #app .app-container .chat-container {
         display: flex;
         flex-direction: column;
@@ -66,7 +67,65 @@ body {
         body #app .app-container .chat-container .messages-container {
           display: flex;
           height: calc(100% - var(--message-height));
-          width: 100%; }
+          width: 100%;
+          overflow: hidden; }
+          body #app .app-container .chat-container .messages-container #messages {
+            list-style: none;
+            width: 100%;
+            padding: 0;
+            margin: 5px 0px;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-flow: column; }
+            body #app .app-container .chat-container .messages-container #messages li {
+              padding: 15px 5px;
+              max-width: 65%;
+              min-width: 35%;
+              outline: none;
+              border-radius: 10px;
+              margin-top: 5px;
+              position: relative; }
+              body #app .app-container .chat-container .messages-container #messages li .nickname {
+                position: absolute;
+                top: 5px;
+                left: 5px;
+                font-weight: bold;
+                font-style: italic; }
+              body #app .app-container .chat-container .messages-container #messages li .time {
+                position: absolute;
+                bottom: 2px;
+                right: 8px;
+                font-size: 12px; }
+              body #app .app-container .chat-container .messages-container #messages li p {
+                margin: 0;
+                padding-left: 5px;
+                padding-top: 15px;
+                padding-bottom: 5px;
+                color: rgba(0, 0, 0, 0.8); }
+            body #app .app-container .chat-container .messages-container #messages li.received {
+              margin-left: 2%;
+              align-self: flex-start;
+              border: 1px solid rgba(255, 255, 255, 0.8);
+              background-color: rgba(255, 255, 255, 0.8);
+              border-bottom-left-radius: 0px; }
+            body #app .app-container .chat-container .messages-container #messages li.sended {
+              margin-right: 2%;
+              align-self: flex-end;
+              border: 1px solid rgba(66, 129, 164, 0.8);
+              background-color: var(--header);
+              border-bottom-right-radius: 0px; }
+            body #app .app-container .chat-container .messages-container #messages li.system {
+              padding: 0px 15px;
+              font-weight: bold;
+              font-style: italic;
+              color: rgba(0, 0, 0, 0.8); }
+            body #app .app-container .chat-container .messages-container #messages .ps__thumb-y {
+              background-color: var(--section-body); }
+            body #app .app-container .chat-container .messages-container #messages .ps__rail-y:hover > .ps__thumb-y, body #app .app-container .chat-container .messages-container #messages .ps__rail-y:focus > .ps__thumb-y, body #app .app-container .chat-container .messages-container #messages .ps__rail-y.ps--clicking .ps__thumb-y {
+              background-color: var(--section-body); }
+            body #app .app-container .chat-container .messages-container #messages .ps__rail-y:hover {
+              background-color: transparent; }
         body #app .app-container .chat-container .message-container {
           display: inline-flex;
           height: var(--message-height);
@@ -88,7 +147,8 @@ body {
           body #app .app-container .chat-container .message-container input:focus, body #app .app-container .chat-container .message-container button:focus, body #app .app-container .chat-container .message-container input, body #app .app-container .chat-container .message-container button {
             border: none; }
       body #app .app-container .users-container {
-        display: inline-flex;
+        display: flex;
+        flex-direction: column;
         width: var(--section-width);
         min-width: var(--section-width);
         background-color: var(--section-header);
@@ -98,7 +158,9 @@ body {
         overflow: hidden; }
         body #app .app-container .users-container .users-title {
           width: 100%;
-          color: white; }
+          color: white;
+          height: 60px;
+          border-bottom: 1px solid rgba(104, 195, 212, 0.5); }
           body #app .app-container .users-container .users-title h3 {
             width: 100%;
             display: inline-flex;
@@ -114,10 +176,54 @@ body {
               animation: pulse 2s infinite; }
             body #app .app-container .users-container .users-title h3 #connection.online {
               background: green; }
-        body #app .app-container .users-container #users {
-          padding: 0px; }
+        body #app .app-container .users-container .users-list {
+          width: 100%;
+          height: calc(100% - 60px); }
+          body #app .app-container .users-container .users-list #users {
+            list-style: none;
+            color: white;
+            font-weight: bold;
+            font-size: 18px;
+            letter-spacing: 0.7px;
+            padding: 0px 10px;
+            overflow-y: auto;
+            height: 95%;
+            position: relative;
+            margin: 2.5% 0%; }
+            body #app .app-container .users-container .users-list #users li {
+              overflow: hidden;
+              white-space: nowrap;
+              text-overflow: ellipsis; }
+            body #app .app-container .users-container .users-list #users .ps__thumb-y {
+              background-color: var(--header); }
+            body #app .app-container .users-container .users-list #users .ps__rail-y:hover > .ps__thumb-y, body #app .app-container .users-container .users-list #users .ps__rail-y:focus > .ps__thumb-y, body #app .app-container .users-container .users-list #users .ps__rail-y.ps--clicking .ps__thumb-y {
+              background-color: var(--header); }
+            body #app .app-container .users-container .users-list #users .ps__rail-y:hover {
+              background-color: transparent; }
       body #app .app-container .users-container.open {
         width: var(--section-width); }
+      body #app .app-container .command-container {
+        position: absolute;
+        bottom: 46px;
+        max-height: 250px;
+        left: 30px;
+        border: 1px solid rgba(255, 255, 255, 0.8);
+        background-color: rgba(255, 255, 255, 0.8);
+        border-radius-top-left: 5px;
+        border-radius-top-right: 5px; }
+        body #app .app-container .command-container #commands {
+          list-style: none;
+          margin: 0;
+          padding: 0;
+          min-width: 125px; }
+          body #app .app-container .command-container #commands li {
+            cursor: pointer;
+            padding: 2px 5px; }
+          body #app .app-container .command-container #commands li:hover {
+            background-color: rgba(200, 200, 200, 0.8); }
+      body #app .app-container .command-container.closed {
+        border-width: 0px;
+        height: 0px; }
 
 /* MEDIA QUERIES */
 @media (max-width: 1000px) {
@@ -137,13 +243,19 @@ body {
     visibility: visible !important;
     width: var(--section-width) !important;
     display: inline-flex !important;
-    z-index: 999; }
+    z-index: 999 !important; }
+
+  #users {
+    height: 90% !important; }
 
   .chat-container {
     width: 100% !important; }
 
   .message-container {
     width: auto !important; }
+
+  #messages li {
+    max-width: 85% !important; }
 
   #menu-button {
     display: block !important; } }

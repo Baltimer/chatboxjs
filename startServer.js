@@ -31,6 +31,8 @@ io.on('connection', function(socket){
   sockets.push(socket);
   users.push(user);
 
+  io.emit('users online', users);
+  
   sendMessageNoName(io, nickname + ' se ha conectado.');
 
   io.emit('users online', users);
@@ -61,26 +63,39 @@ http.listen(3000, function(){
 });
 
 function sendMessage(io, nickname, msg){
-	msg = getCurrentDate() +' <b>' + nickname + ':</b> ' + msg
-	io.emit('chat message', msg);
+	let message = {};
+	message.time = getCurrentDate();
+	message.user = nickname;
+	message.body = msg;
+	message.system = false;
+	io.emit('chat message', message);
     if(messages.length >= MAX_MESSAGES){
     	messages.shift();
     }
-    messages.push(msg);
+    messages.push(message);
 }
 
 function sendMessageNoName(io, msg){
-	msg = getCurrentDate() + ' <b><i>' + msg + '</i></b>';
-	io.emit('chat message', msg);
+	let message = {};
+	message.time = getCurrentDate();
+	message.user = 'System';
+	message.body = msg;
+	message.system = true;
+	io.emit('chat message', message);
     if(messages.length >= MAX_MESSAGES){
     	messages.shift();
     }
-    messages.push(msg);
+    messages.push(message);
 }
 
 function sendMessageToUser(socket, msg){
-	msg = getCurrentDate() + ' <b><i>' + msg + '</i></b>';
-	socket.emit('chat message', msg);
+	let message = {};
+	message.time = getCurrentDate();
+	message.user = 'System';
+	message.body = msg;
+	message.system = true;
+	console.log('entra');
+	socket.emit('chat message', message);
 }
 
 function getCurrentDate(){
@@ -104,5 +119,5 @@ function getCurrentDate(){
 	  min = '0' + min;
 	}
 	// Full date: '[' +dd + '/' + mm + '/' + yyyy + ' - ' + today.getHours() + ':' + today.getMinutes() + ']'
-	return '[' + hh + ':' + min + ']';
+	return hh + ':' + min;
 }

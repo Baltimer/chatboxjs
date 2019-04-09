@@ -18,18 +18,20 @@
 					<ul id="messages"></ul>
 				</div>
 				<div class="message-container">
-					<input type="text" id="message" />
-					<button id="send">Enviar</button>
+					<input type="text" id="message" onkeypress="introSend(event)" onkeyup="checkMessage(event)" autocomplete="off" />
+					<button id="send" onclick="send(event)">Enviar</button>
 				</div>
 			</div>
-			<div class="users-container">
+			<div class="users-container" onmouseleave="hideUserSection()">
 				<div class="users-title">
 					<h3><span id="connection"></span>Online users (<span id="online-users">0</span>)</h3>
-			  		<hr>
 				</div>
 				<div class="users-list">
 					<ul id="users"></ul>
 				</div>
+			</div>
+			<div class="command-container closed">
+				<ul id="commands"></ul>
 			</div>
 		</div>
 		</div>
@@ -37,11 +39,197 @@
 		<script src="/socket.io/socket.io.js"></script>
 	    <script src="/perfect-scrollbar/dist/perfect-scrollbar.js"></script>
 	    <script>
+	    	var url = new URL(window.location.href);
+			var nickname = url.searchParams.get("nickname");
+
+			// Initialize PerfectScrollbar
+			const psUsers = new PerfectScrollbar('#users');
+			const psMessages = new PerfectScrollbar('#messages');
+
+		    var socket = io('', {query: 'nickname=' + nickname});
+
+		    //Retrieve the online users
+			socket.on('users online', function(users){
+				document.getElementById('online-users').innerHTML = users.length;
+				let container = document.getElementById('users');
+				container.innerHTML = '';
+				users.forEach( user => {
+					let li = document.createElement('li');
+					li.innerHTML = user.nickname;
+					container.append(li);
+				});
+			});
+
+			// Check connection to server
+		    function checkConnection(){
+		    	let element = document.getElementById('connection');
+		    	if(socket.connected){
+		    		element.classList.add('online');
+		    	}else {
+					element.classList.remove('online');
+		    	}
+		    }
+
+			// Retrieve the last messages from server
+			socket.on('last messages', function(messages){
+				let container = document.getElementById('messages');
+				messages.forEach(message => {
+					let li = document.createElement('li');
+					if(message.system){
+						li.className = 'system';
+						li.innerHTML = message.body;
+					}else{
+						li.className = (nickname == message.user ? 'sended' : 'received');
+						let name = document.createElement('span');
+						name.className = 'nickname';
+						name.innerHTML = message.user;
+						li.append(name);
+						let body = document.createElement('p');
+						body.innerHTML = message.body;
+						li.append(body);
+						let time = document.createElement('span');
+						time.className = 'time';
+						time.innerHTML = message.time;
+						li.append(time);
+					}
+					container.append(li);
+				});
+				scrollToBottom();
+				psMessages.update();
+			});
+
+			// Send messages
+			function send(evt){
+		      evt.preventDefault(); // prevents page reloading
+		      sendMessage();
+		    }
+		    function introSend(evt){
+		    	if(evt.keyCode == 13){
+		    		sendMessage();
+		    	}
+		    }
+
+		    function sendMessage(){
+		    	let message = document.getElementById('message').value.trim();
+		    	if(message != ''){
+		    		let command = message.charAt(0);
+		    		if(command == '/'){
+	    				let action = message.slice(1, (message.indexOf(' ') == -1 ? message.length : message.indexOf(' ')));
+	    				let search = message.slice(message.indexOf(' '), message.length);
+	    				switch(action){
+	    					case 'clear':
+	    						document.getElementById('messages'). innerHTML = '';
+	    						break;
+	    					case 'gif':
+	    						var req = new XMLHttpRequest();
+	    						req.open('GET', 'https://api.giphy.com/v1/gifs/search?api_key=iQ6EgYmlMTRANfu4NkRKCgSMsxtdmaDY&q='+search, false);
+	    						req.send(null);
+	    						if (req.status == 200){
+	    							let response = JSON.parse(req.responseText);
+	    							if(response.data.length > 0){
+	    								console.log(response.data)
+	    								socket.emit('chat message', '<img src="' + response.data[0].images.original.url + '" height="150" width="150" />');
+	    							} else {
+	    								socket.emit('no command', 'No hemos encontrado ningún GIF.');
+	    							}
+	    						}
+	    						break;
+	    					default:
+	    						socket.emit('no command', 'Este comando no existe.');
+	    				}
+		    		} else {
+		    			let left = message.indexOf('<');
+		    			let right = message.indexOf('>');
+		    			console.log(left + ' - ' + right);
+		    			if(left == -1 || right == -1 || left > right){
+		    				socket.emit('chat message', message);
+		    			} else{
+		    				socket.emit('no command', 'No no no ;)');
+		    			}
+		    		}
+		    		document.getElementById('message').value = '';
+		    	}
+		    }
+
+		    socket.on('chat message', function(msg){
+				let li = document.createElement('li');
+				if(msg.system){
+					li.className = 'system';
+		    		li.innerHTML = msg.body;
+		    	} else {
+		    		li.className = (nickname == msg.user ? 'sended' : 'received');
+					let name = document.createElement('span');
+					name.className = 'nickname';
+					name.innerHTML = msg.user;
+					li.append(name);
+					let body = document.createElement('p');
+					body.innerHTML = msg.body;
+					li.append(body);
+					let time = document.createElement('span');
+					time.className = 'time';
+					time.innerHTML = msg.time;
+					li.append(time);
+		    	}
+	      		document.getElementById('messages').append(li);
+		      	scrollToBottom();
+		      	psMessages.update();
+		    });
+
+		    window.onload = function() {
+		    	setInterval(checkConnection, 1000); // Check for the status of the server every second
+		    }
+
+		    // Rotation of the menu button
 	    	function rotate() {
 	    		document.getElementById('menu-button').classList.toggle('change');
-	    		console.log(document.getElementsByClassName('users-container')[0]);
 	    		document.getElementsByClassName('users-container')[0].classList.toggle('open');
 	    	}
+
+	    	// Hide the user section
+	    	function hideUserSection(){
+	    		let element = document.getElementsByClassName('users-container')[0];
+	    		element.classList.remove('open');
+	    		document.getElementById('menu-button').classList.remove('change');
+	    	}
+
+	    	// Check info about the message
+	    	function checkMessage(evt){
+	    		let commands = ['clear', 'gif'];
+	    		let element = evt.target;
+	    		let message = element.value.trim();
+	    		document.getElementById('commands').innerHTML = '';
+	    		document.getElementsByClassName('command-container')[0].classList.add('closed')
+		    	if(message != ''){
+		    		let command = message.charAt(0);
+		    		if(command == '/'){
+		    			document.getElementsByClassName('command-container')[0].classList.remove('closed')
+		    			let action = message.slice(1, (message.indexOf(' ') == -1 ? message.length : message.indexOf(' ')));
+		    			let options = commands.filter(command => command.indexOf(action) != -1);
+		    			let finded = false;
+		    			options.forEach(option => {
+		    				if(commands.indexOf(action) != -1) {
+		    					finded = true;
+		    				}
+		    				let li = document.createElement('li');
+		    				li.innerHTML = '/' + option;
+		    				document.getElementById('commands').append(li);
+		    			});
+		    			if(options.length == 0 || finded){
+		    				document.getElementById('commands').innerHTML = '';
+		    				document.getElementsByClassName('command-container')[0].classList.add('closed')
+		    			}
+		    		} 
+		    	}
+	    	}
+
+	    	document.querySelector('body').onclick = function(evt) {
+	    		// TODO: Hide the menu on mobile if it's opened
+	    	}
+
+	    	function scrollToBottom() {
+			  	document.getElementById('messages').scrollTop = document.getElementById('messages').scrollHeight;
+			}
 	    </script>
+	<!-- END SCRIPTS SECTION -->
 </body>
 </html>
